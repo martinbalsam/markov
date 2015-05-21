@@ -2,4 +2,6 @@
 
 str="This is the first file"
 
-print
+print "markov"
+print str
+print "<<"
