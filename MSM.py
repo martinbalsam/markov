@@ -3,7 +3,7 @@ class MSM:
       self.T=T
       self._pi = None
    @property
-      def pi(self):
-         if self._pi = None:
-            self._pi = get_pi(self.T)
-         return self._pi
+   def pi(self):
+      if self._pi = None:
+         self._pi = get_pi(self.T)
+      return self._pi
