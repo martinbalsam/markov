@@ -1,3 +1,4 @@
 21:05:2015 15:53 Project started. Have fun :) [Nils]
 28.05.2015 15:21 Checkin' in again. Nothing much to do yet. [giulio]
 02.06.2015 16:30 I will work out the class concept now and try to push it by night [Nils]
+04.06.2015 14:22 I pushed the test_sandbox directory, where I copied the structure of the pyinterpolation folder of last week. In the markovanalysis/implementation.py i put all the useful functions (towersample, kosuraju, various counts) and I tried to write a first version of a "getSationaryDistribution" function. But it doesn't work. I also wrote a test for the getStationaryDistribution function. but it doesnt work
