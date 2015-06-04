@@ -1,6 +1,6 @@
 """This module provides the implementation"""
 
-__all__ = ["getStationaryDistribution"]
+__all__ = ["getStationaryDistribution","getStationaryDistributionLimit"]
 
 import numpy as np
 
@@ -79,3 +79,7 @@ def getStationaryDistribution(P):
     for i in xrange(eigenvalues.shape[0]):
         if (np.abs(eigenvalues[i] - 1)< 1.0E-15):
             return eigenvectors[i]/np.sum(eigenvectors[i])
+
+
+def getStationaryDistributionLimit(P):
+    return np.linalg.matrix_power(P,1000)[0]
