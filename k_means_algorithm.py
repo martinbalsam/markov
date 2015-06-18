@@ -13,7 +13,7 @@ form numpy import linalg as LA
 
 def initial(k,data):
     m=[]
-    sampl = sample(xrange(data.shape[0]), k)
+    sampl = rd.sample(xrange(data.shape[0]), k)
     for i in sampl:
             m.append(data[i])
     return m           
