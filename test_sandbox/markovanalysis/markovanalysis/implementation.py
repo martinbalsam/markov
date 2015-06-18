@@ -63,7 +63,7 @@ def kosaraju(graph):
             gra[:,i]=0
     return com_classes   #return the comunication classes as a list of lists
 
-
+    
 
 
 def get_size_largest_element(array):
@@ -73,7 +73,6 @@ def get_size_largest_element(array):
     return max(sizes)
 
 
-
 def getStationaryDistribution(P):
     eigenvalues, eigenvectors = np.linalg.eig(np.transpose(P))
     for i in xrange(eigenvalues.shape[0]):
@@ -81,5 +80,14 @@ def getStationaryDistribution(P):
             return eigenvectors[i]/np.sum(eigenvectors[i])
 
 
+def getStationaryDist(T):
+    T2= np.matrix.transpose(T)
+    w,v=np.linalg.eig(T2)
+    for i in range(0,len(w)):
+        if (w[i]==1):
+            return v[i]
+
+    
+    
 def getStationaryDistributionLimit(P):
     return np.linalg.matrix_power(P,1000)[0]

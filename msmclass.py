@@ -16,6 +16,7 @@ class LogFile:
 class MSMAnalysis:
     def __init__(self, npa_transition, log):
         self.active=True
+        self.stationaryDistribution=[]
         self.log=log
         self.log.LogSystemEvent("New instance of MSMAnalysis created",str(self),SYS_CREATE_MSMANALYSIS)
         self.log.LogSystemEvent("Trying to assign transition matrix to object, variable type " + str(type(npa_transition)), str(self),SYS_ASSIGN_TRANSITION)
@@ -48,3 +49,13 @@ class MSMAnalysis:
             self.log.LogError("Unvalid transitionMatrix type "+ str(type(npa_transition)),str(self),NPA_TYPE_ERROR)
             self.npa_transition=NPA_TYPE_ERROR
             self.active=False
+    def StationaryDist(self):
+        if (self.active==True):
+            if (self.stationaryDistribution==[]):
+                T2= np.matrix.transpose(self.npa_transition)
+                w,v=np.linalg.eig(T2)
+                v2=np.matrix.transpose(v)
+                for i in range(0,len(w)):
+                    if (round(w[i],10)==1):
+                        self.stationaryDistribution = v2[i]
+            return self.stationaryDistribution
