@@ -1,4 +1,3 @@
-#comment
 MM= np.random.randint(1, 100, (4, 100, 2)) 
 # create a a rndom matrix containe 4 amtrix, where every matrix is 100x2 
 # 4 represant k in our case (the number of clusters)
@@ -13,3 +12,4 @@ for i in range(4):
 plt.axis([-1, 101, -1, 101])
 #of course in our case the points of the same color will be near
 #here is not seem because I did not make the k-means, is only a plot test
+#we can do the same on ourclusturs
