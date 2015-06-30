@@ -3,7 +3,7 @@
 import numpy as np
 import random as rd
 import math
-form numpy import linalg as LA
+from numpy import linalg as LA
 
 
 "Lloyd Algerithm for k-means"
@@ -17,7 +17,8 @@ def initial(k,data):
     for i in sampl:
             m.append(data[i])
     return m           
-                                                "m are considered as the means of the k clusters" 
+
+"m are considered as the means of the k clusters" 
 
 
 "Step2:assignment of all the data to k clusters by given points in m"
@@ -48,3 +49,14 @@ def k_means_clustering(data,k):
             clusters_old=clusters_new
             clusters_new=assignment(data,old_means)
         return clusters_new
+
+
+def k_means_clustering_faster(data,k):
+        new_means=initial(k,data)
+        old_means=zeros_as(new_means)
+        while np.norm(new_means-old_means, np.inf)>1.0E-15: #Define max_norm or find something similar in numpy
+                clusters=assignment(data,new_means)
+                old_means=new_means
+                for i in range(len(new_means)):
+                        new_means[i]=np.mean(clusters[i])
+        return clusters
