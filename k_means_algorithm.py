@@ -51,12 +51,23 @@ def k_means_clustering(data,k):
         return clusters_new
 
 
+
 def k_means_clustering_faster(data,k):
         new_means=initial(k,data)
         old_means=zeros_as(new_means)
-        while np.norm(new_means-old_means, np.inf)>1.0E-15: #Define max_norm or find something similar in numpy
+        while np.norm(new_means-old_means, np.inf)>1.0E-13: #Define max_norm or find something similar in numpy
                 clusters=assignment(data,new_means)
                 old_means=new_means
                 for i in range(len(new_means)):
                         new_means[i]=np.mean(clusters[i])
         return clusters
+
+
+def fitness(clusters,centers):
+        fitness=0
+        for cluster in clusters:
+                
+
+def getStatesFromTimeSeries(data, clusters):
+        for i in range(len(clusters)):
+                
