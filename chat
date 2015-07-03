@@ -4,3 +4,10 @@
 04.06.2015 14:22 I pushed the test_sandbox directory, where I copied the structure of the pyinterpolation folder of last week. In the markovanalysis/implementation.py i put all the useful functions (towersample, kosuraju, various counts) and I tried to write a first version of a "getSationaryDistribution" function. But it doesn't work. I also wrote a test for the getStationaryDistribution function. but it doesnt work [giulio]
 18.06.2015 12:35 Finished the Log-Class and optimized the analysis container-class. I will start to include the separate functions now. [Nils]
 18.06.2015 13:57 I finished writing the k_means algrithm, now it works, for any dataset of any dimention. I'll start writing some plotting tools and tests. Sorry I can't make it to class today [giulio]
+
+Hi Nils, it's giulio here, this chat thing didn't work in the end. I need to talk to you, can you write me at my email address? giuliorasi@gmail.com
+I think we need to postpone the presentation, there is no way we can finish even one module before next friday. There are some deep things missing from our implementation:
+
+-the 1 diminutional example should expose some sort of double well potential energy behavior, but it's still all pretty random to me.
+
+-until
