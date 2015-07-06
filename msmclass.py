@@ -17,6 +17,8 @@ class MSMAnalysis:
     def __init__(self, npa_transition, log):
         self.active=True
         self.stationaryDistribution=[]
+        self.eigenvectors=[]
+        self.eigenvalues=[]
         self.log=log
         self.log.LogSystemEvent("New instance of MSMAnalysis created",str(self),SYS_CREATE_MSMANALYSIS)
         self.log.LogSystemEvent("Trying to assign transition matrix to object, variable type " + str(type(npa_transition)), str(self),SYS_ASSIGN_TRANSITION)
@@ -59,3 +61,26 @@ class MSMAnalysis:
                     if (round(w[i],10)==1):
                         self.stationaryDistribution = v2[i]
             return self.stationaryDistribution
+        
+
+    def istransitionmatrix(self):
+        for i in range(np.shape(self.npa_transition)[0]):
+            if (sum(self.npa_transition[i,:]) - 1)>1e-13:
+                return False
+        return True
+
+## TODO: order the eigenvalues in decreasing absolute value
+
+
+    def Eigenvalues(self):
+        if (self.active==True):
+            if (self.eigenvalues==[]):
+                self.eigenvalues = np.linalg.eig(self.npa_transition)[0]
+            return self.eigenvalues
+
+    def Eigenvectors(self):
+        if (self.active==True):
+            if (self.eigenvectors==[]):
+                self.eigenvectors = np.linalg.eig(self.npa_transition)[1]
+            return self.eigenvectors
+        
