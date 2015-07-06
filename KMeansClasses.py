@@ -55,6 +55,7 @@ class Cluster:
 class Clustering:
     def __init__(self,path, clusternumber, maxit=10, tolerance=0.01):
         self.pointlist=self.SanitizeInput(np.loadtxt(path))
+        self.system_dimention = len(self.pointlist[0].coords[0] )          
         self.k=clusternumber
         self.tolerance=tolerance
         self.maxit=maxit
