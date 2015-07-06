@@ -62,6 +62,7 @@ class Clustering:
         self.tolerance=tolerance
         self.maxit=maxit
         self.clusters=[]
+        self.trajectory = []
         self.system_dimention = len(self.pointlist[0].coords[0] )          
         rndsample=rd.sample(xrange(0,len(self.pointlist)),clusternumber)
         for i in range(0,clusternumber):
@@ -135,109 +136,26 @@ class Clustering:
         returnlist=[]
         for i in sorted(self.pointlist,key=keyf):
             returnlist.append(i.coords[1])
-        return returnlist
+        self.trajectory = returnlist
+    
+    def GetEstimator(self):
+        return Estimation(self.trajectory,self.k)
         
         
         
-def k_means_clustering_faster(data,k):
-        new_means=initial(k,data)
-        old_means=zeros_as(new_means)
-        while np.norm(new_means-old_means, np.inf)>1.0E-5: #Define max_norm or find something similar in numpy
-                clusters=assignment(data,new_means)
-                old_means=new_means
-                for i in range(len(new_means)):
-                        new_means[i]=np.mean(clusters[i])
-        return clusters        
+class Estimation:
+    def __init__(self,dtraj,number_of_clusters):
+        self.dtraj = dtraj
+        self.number_of_clusters = number_of_clusters
+        self.count_matrix = self.ComputeCountMatrix()
+        self.transition_matrix = None
         
-        
-        
-
-
-# In[9]:
-
-test=np.loadtxt("C:\\test\markov\example_1.dat")
-test2=np.loadtxt("C:\\test\markov\example_2.dat")
-
-
-###### test
-
-# In[88]:
-
-test=(1,2)
-print test[0]
-
-
-# In[17]:
-
-for i in test3:
-    print i
-
-
-# In[373]:
-
-clustertest=Clustering("C:\\test\markov\example_1.dat",6,6)
-
-
-# In[345]:
-
-for clusters in clustertest.clusters:
-    print clusters.center
-
-
-# In[129]:
-
-for clusters in clustertest.clusters:
-    print type(clusters.center)
-
-
-# In[374]:
-
-testtr=clustertest.Kmeans()
-
-
-# In[321]:
-
-for clusters in clustertest.clusters:
-    pointlist=[]
-    for point in clusters.points:
-        pointlist.append(point.coords[0])
-    plt.plot(pointlist,np.zeros_like(pointlist),'o')
-    print (clusters.center, len(clusters.points))
-    #plt.plot(clusters.center,np.zeros_like(center)+1)
-
-
-# In[277]:
-
-testpoint=Point([3.0,5.9,5.3])
-testpoint2=Point([1.0,1.9,3.6])
-
-
-# In[286]:
-
-clustertest.clusters[1].center
-
-
-# In[247]:
-
-(testpoint.coords[0]+testpoint2.coords[0])/2.0
-
-
-# In[85]:
-
-Clu
-
-
-# In[86]:
-
-test
-
-
-# In[375]:
-
-testtr
-
-
-# In[ ]:
-
-
-
+    def ComputeCountMatrix(self):
+        M=np.zeros((self.number_of_clusters,self.number_of_clusters))
+        for c in range(len(self.dtraj)-1):
+            for i in range(self.number_of_clusters):
+                if self.dtraj[c]==i:
+                    for j in range(self.number_of_clusters):
+                        if self.dtraj[c+1]==j:
+                            M[i,j]=M[i,j]+1
+        return M 
