@@ -66,13 +66,13 @@ class Clustering:
         self.maxit=maxit
         self.clusters=[]
         self.trajectory = []
-        self.system_dimention = len(self.pointlist[0].coords[0] )          
+        self.system_dimension = len(self.pointlist[0].coords[0] )          
         rndsample=rd.sample(xrange(0,len(self.pointlist)),clusternumber)
         rndsample2=[]
-        if (self.system_dimesion==1):
+        if (self.system_dimension==1):
             for i in range(0,len(rndsample)):
                 rndsample2.append((rndsample[i],self.pointlist[rndsample[i]].coords[0]))
-            rndsample2 = sorted(rndsample2)
+            rndsample2 = sorted(rndsample2,key=key2)
             rndsample=[]
             for i in rndsample2:
                 rndsample.append(i[0]) 
