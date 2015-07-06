@@ -1,15 +1,18 @@
 
 # coding: utf-8
 
-# In[322]:
+# In[351]:
 
 import numpy as np
 import random as rd
 from numpy import linalg as LA
 get_ipython().magic(u'pylab inline')
+def keyf(point):
+    return point.pointnum
 class Point:
-    def __init__(self, coordinates):
+    def __init__(self, coordinates,pointnum):
         self.coords=(np.array(coordinates),0)
+        self.pointnum=pointnum
     def AssignCluster(self,clusternumber):
         tmp1,tmp2=self.coords
         self.coords=(tmp1,clusternumber)
@@ -21,14 +24,14 @@ class Point:
         
 
 
-# In[329]:
+# In[352]:
 
 class Cluster:
     def __init__(self,clusterID):
         self.ID=clusterID
         self.points=[]
         self.center=np.array([])
-        self.oldCenter=[]
+        self.oldcenter=[]
         self.fitness=0.0
     def AssignCenter(self,center):
         self.center=center
@@ -50,16 +53,16 @@ class Cluster:
     
 
 
-# In[336]:
+# In[372]:
 
 class Clustering:
     def __init__(self,path, clusternumber, maxit=10, tolerance=0.01):
         self.pointlist=self.SanitizeInput(np.loadtxt(path))
-        self.system_dimention = len(self.pointlist[0].coords[0] )          
         self.k=clusternumber
         self.tolerance=tolerance
         self.maxit=maxit
         self.clusters=[]
+        self.system_dimention = len(self.pointlist[0].coords[0] )          
         rndsample=rd.sample(xrange(0,len(self.pointlist)),clusternumber)
         for i in range(0,clusternumber):
             self.clusters.append(Cluster(i))
@@ -70,13 +73,13 @@ class Clustering:
         if (len(data)==0):
             return np.array(["EmptyList"])
         elif (type(data[0])==np.ndarray):
-            for i in data:
-                sanlist.append(Point(i))
+            for i in range(0,len(data)):
+                sanlist.append(Point(data[i],i))
             return sanlist
 
         else:
-            for i in data:
-                sanlist.append(Point([i]))
+            for i in range(0,len(data)):
+                sanlist.append(Point([data[i]],i))
             return sanlist
     def Kmeans(self):
         for point in self.pointlist:
@@ -124,8 +127,15 @@ class Clustering:
             print norm    
             if (norm<self.tolerance):
                 break
-            
-        
+                
+        for cluster in self.clusters:
+            for point in cluster.points:
+                self.pointlist.append(point)
+            cluster.points=[]
+        returnlist=[]
+        for i in sorted(self.pointlist,key=keyf):
+            returnlist.append(i.coords[1])
+        return returnlist
         
         
         
@@ -163,12 +173,12 @@ for i in test3:
     print i
 
 
-# In[342]:
+# In[373]:
 
-clustertest=Clustering("C:\\test\markov\example_2.dat",6,6)
+clustertest=Clustering("C:\\test\markov\example_1.dat",6,6)
 
 
-# In[340]:
+# In[345]:
 
 for clusters in clustertest.clusters:
     print clusters.center
@@ -180,9 +190,9 @@ for clusters in clustertest.clusters:
     print type(clusters.center)
 
 
-# In[343]:
+# In[374]:
 
-clustertest.Kmeans()
+testtr=clustertest.Kmeans()
 
 
 # In[321]:
@@ -220,6 +230,11 @@ Clu
 # In[86]:
 
 test
+
+
+# In[375]:
+
+testtr
 
 
 # In[ ]:
