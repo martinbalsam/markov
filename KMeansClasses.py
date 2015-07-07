@@ -69,6 +69,7 @@ class Clustering:
         self.system_dimension = len(self.pointlist[0].coords[0] )          
         rndsample=rd.sample(xrange(0,len(self.pointlist)),clusternumber)
         rndsample2=[]
+        #order in 1d case
         if (self.system_dimension==1):
             for i in range(0,len(rndsample)):
                 rndsample2.append((rndsample[i],self.pointlist[rndsample[i]].coords[0]))
