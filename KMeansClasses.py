@@ -105,9 +105,6 @@ class Clustering:
             tmppointer.AddPoint(point)
         self.pointlist=[]
         #iterations
-        
-
-        
         for iterations in range(0,self.maxit):   
             
             for clusters in self.clusters:
@@ -162,11 +159,82 @@ class Estimation:
         self.transition_matrix = None
         
     def ComputeCountMatrix(self):
-        M=np.zeros((self.number_of_clusters,self.number_of_clusters))
-        for c in range(len(self.dtraj)-1):
+        """
+        computes the count matrix from the discrete trajectory
+        
+        TODO: add
+        -timelag
+        -time slide
+        """
+        C=np.zeros((self.number_of_clusters,self.number_of_clusters))
+        for k in range(len(self.dtraj)-1):
             for i in range(self.number_of_clusters):
-                if self.dtraj[c]==i:
+                if self.dtraj[k]==i:
                     for j in range(self.number_of_clusters):
-                        if self.dtraj[c+1]==j:
-                            M[i,j]=M[i,j]+1
-        return M 
+                        if self.dtraj[k+1]==j:
+                            C[i,j]=C[i,j]+1
+        return M
+
+
+def isCountMatrix(C):
+    """
+    Checks if every row has at least one non zero entry
+    """
+    if np.any(np.isclose([C[i, :].sum() for i in range(len(C))], 0)):
+        return False
+    return True
+def estimate_irreversible(C):
+    """
+    naive irreversible transition matrix
+    input:
+    C : count matrix, integer valued, each row must contain at least one positive value
+    
+    output:
+    T : transition matrix, row-stochastic, numpy array, dtype= "float"
+    """
+    if not isCountMatrix(C):
+        raise ValueError("the input matrix is not a count matrix")
+    
+    d = np.shape(C)[0]
+    T = np.zeros_like(C, dtype=float)
+    for i in range(d):
+        for j in range(d):
+            T[i,j]=C[i,j]/C[i].sum()
+    return T
+
+def estimate_reversible(C,maxiter=10000000,tolerance = 1e-10):
+    """
+    estimator of maximum likelihood of a reversible transition matrix
+    
+    input:
+    C : count matrix
+    maxiter : the maximum number of iterations before stopping automatically. Default: 10'000'000
+    tolerance : the olgorithm stops when the maximum difference between two entries of two iterations is below "tollerance"
+    """
+    dim = C.shape[0]
+    # first estimation using "estimate_irreversible()"
+    X_new = estimate_irreversible(C)
+    
+    #compute C[i,j]+C[j,i] and the vector csum (the sum of each row of C) only once,  better than doing it everytime in the loop [giulio]
+    csum = [sum(C[i,:]) for i in range(dim)]
+    C2 = C + C.T
+    
+    # convergence
+    #first iteration == True
+    diff = 1.
+    iteration = 1
+    while diff > 1e-08 and iteration < maxiter:
+        diff = 0.
+        #copy the matrix, not just reassign the value
+        X = np.copy(X_new)
+        xsum = [sum(X[i,:]) for i in range(dim)]
+        for i in range(dim):
+            for j in range(dim):
+                X_new[i,j]=C2[i,j]/((csum[i]/xsum[i]) + (csum[j]/xsum[j]) )
+                if abs(X_new[i,j]-X[i,j]>diff):
+                    diff = abs(X_new[i,j]-X[i,j]>diff)
+        iteration += 1
+    T = np.zeros_like(X_new)
+    T = X_new / [sum(X_new[i,:]) for i in range(dim)]
+    print "number of iterations: ", iteration
+    return T 
