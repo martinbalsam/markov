@@ -174,6 +174,8 @@ class Estimation:
                         if self.dtraj[k+1]==j:
                             C[i,j]=C[i,j]+1
         return M
+    
+    
 
 
 def isCountMatrix(C):
