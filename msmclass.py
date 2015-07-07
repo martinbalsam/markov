@@ -13,74 +13,85 @@ class LogFile:
         self.logfile.append((message,objectdesc,str(code)))
     def LogError(self,errormessage, objectdesc,code):
         self.logfile.append((errormessage,objectdesc, str(code)))
+        
+TEST_LOG=LogFile("testLog")
 class MSMAnalysis:
-    def __init__(self, npa_transition, log):
-        self.active=True
-        self.stationaryDistribution=[]
-        self.eigenvectors=[]
-        self.eigenvalues=[]
-        self.log=log
-        self.log.LogSystemEvent("New instance of MSMAnalysis created",str(self),SYS_CREATE_MSMANALYSIS)
-        self.log.LogSystemEvent("Trying to assign transition matrix to object, variable type " + str(type(npa_transition)), str(self),SYS_ASSIGN_TRANSITION)
-        if type(npa_transition)==np.ndarray:
-            if (npa_transition.ndim==2):
-                if (npa_transition.shape[0]==npa_transition.shape[1]):
+    def __init__(self, T, log=TEST_LOG):
+        """ input:
+        T : transition matrix, row stochastic np.array
+        log : string of log file
+        """
+    
+        #initialize the transition matrix
+        if type(T)==np.ndarray:
+            if (T.ndim==2):
+                if (T.shape[0]==T.shape[1]):
                     check=1
-                    for j in npa_transition:
+                    for j in T:
                         for i in j:
                             if ((i<0) or (i>1)):
                                 check=0
                     if (check==1):
-                        self.npa_transition=npa_transition
+                        self.T=T
                     else:
                         self.log.LogError("Unvalid transitionMatrix,entries not between 0 and 1 ",str(self),NPA_ENTRIE_ERROR)
-                        self.npa_transition=NPA_SQUARE_ERROR
+                        self.T=NPA_SQUARE_ERROR
                         self.active=False
                 else:
-                    self.log.LogError("Unvalid transitionMatrix, not square but " +str(npa_transition.shape),str(self),NPA_DIMENSION_ERROR)
-                    self.npa_transition=NPA_SQUARE_ERROR
+                    self.log.LogError("Unvalid transitionMatrix, not square but " +str(T.shape),str(self),NPA_DIMENSION_ERROR)
+                    self.T=NPA_SQUARE_ERROR
                     self.active=False
             else:
                 print "Unvalid transition matrix, Dimension must equal 2, object deleted"
-                self.log.LogError("Unvalid transitionMatrix dimenion " +str(npa_transition.ndim),str(self),NPA_DIMENSION_ERROR)
-                self.npa_transition=NPA_DIMENSION_ERROR
+                self.log.LogError("Unvalid transitionMatrix dimenion " +str(T.ndim),str(self),NPA_DIMENSION_ERROR)
+                self.T=NPA_DIMENSION_ERROR
                 self.active=False
                 
         else:
             print "Unvalid transition matrix, must be of type numpy array, object deleted"
-            self.log.LogError("Unvalid transitionMatrix type "+ str(type(npa_transition)),str(self),NPA_TYPE_ERROR)
-            self.npa_transition=NPA_TYPE_ERROR
+            self.log.LogError("Unvalid transitionMatrix type "+ str(type(T)),str(self),NPA_TYPE_ERROR)
+            self.T=NPA_TYPE_ERROR
             self.active=False
-    def StationaryDist(self):
+        self.active=True
+        self._stationaryDistribution=None
+        self._eigenvectors=None
+        self._eigenvalues=None
+        self.log=log
+        self.log.LogSystemEvent("New instance of MSMAnalysis created",str(self),SYS_CREATE_MSMANALYSIS)
+        self.log.LogSystemEvent("Trying to assign transition matrix to object, variable type " + str(type(T)), str(self),SYS_ASSIGN_TRANSITION)
+        
+        
+    @property    
+    def stationaryDistribution(self):
         if (self.active==True):
-            if (self.stationaryDistribution==[]):
-                T2= np.matrix.transpose(self.npa_transition)
+            if (self._stationaryDistribution==None):
+                T2= np.matrix.transpose(self.T)
                 w,v=np.linalg.eig(T2)
                 v2=np.matrix.transpose(v)
                 for i in range(0,len(w)):
                     if (round(w[i],10)==1):
-                        self.stationaryDistribution = v2[i]
-            return self.stationaryDistribution
+                        self._stationaryDistribution = v2[i]
+            return self._stationaryDistribution
         
-
+    @property
     def istransitionmatrix(self):
-        for i in range(np.shape(self.npa_transition)[0]):
-            if (sum(self.npa_transition[i,:]) - 1)>1e-13:
-                return False
+        for i in range(np.shape(self.T)[0]):
+            if not np.allclose(sum(self.T[i,:]), 1):
+                return False    
         return True
 
 ## TODO: order the eigenvalues in decreasing absolute value
 
-
-    def Eigenvalues(self):
+    @property
+    def eigenvalues(self):
         if (self.active==True):
-            if (self.eigenvalues==[]):
-                self.eigenvalues = np.linalg.eig(self.npa_transition)[0]
-            return self.eigenvalues
-
-    def Eigenvectors(self):
+            if (self._eigenvalues==None):
+                self._eigenvalues = np.linalg.eig(self.T)[0]
+            return self._eigenvalues
+    @property
+    def eigenvectors(self):
         if (self.active==True):
-            if (self.eigenvectors==[]):
-                self.eigenvectors = np.linalg.eig(self.npa_transition)[1]
-            return self.eigenvectors
+            if (self._eigenvectors==None):
+                self._eigenvectors = np.linalg.eig(self.T)[1]
+            return self._eigenvectors
         
