@@ -1,4 +1,3 @@
-import numpy as np
 NPA_DIMENSION_ERROR=1
 NPA_SQUARE_ERROR=1
 NPA_TYPE_ERROR=2
@@ -52,19 +51,29 @@ class MSMAnalysis:
             self.log.LogError("Unvalid transitionMatrix type "+ str(type(T)),str(self),NPA_TYPE_ERROR)
             self.T=NPA_TYPE_ERROR
             self.active=False
+            
         self.active=True
         self._stationaryDistribution=None
-        self._eigenvectors=None
-        self._eigenvalues=None
+        self._Reigenvectors=None
+        self._Leigenvectors=None
+        
+        unsorted_eigenvalues,unsorted_Reigenvectors= LA.eig(self.T)
+        zipper = zip(unsorted_eigenvalues,unsorted_Reigenvectors)
+        self._unsorted_eigenvalues = unsorted_eigenvalues
+        self._unsorted_Reigenvectors = unsorted_Reigenvectors
+        self.eigenvalues=sorted(unsorted_eigenvalues, key = abs, reverse=True)
+        self.Reigenvectors=None
         self.log=log
         self.log.LogSystemEvent("New instance of MSMAnalysis created",str(self),SYS_CREATE_MSMANALYSIS)
         self.log.LogSystemEvent("Trying to assign transition matrix to object, variable type " + str(type(T)), str(self),SYS_ASSIGN_TRANSITION)
-        
-        
+    
+    
+    # Eigenvalues & left and right eigenvectors 
+            
     @property    
     def stationaryDistribution(self):
         if (self.active==True):
-            if (self._stationaryDistribution==None):
+            if self._stationaryDistribution is None:
                 T2= np.matrix.transpose(self.T)
                 w,v=np.linalg.eig(T2)
                 v2=np.matrix.transpose(v)
@@ -79,19 +88,12 @@ class MSMAnalysis:
             if not np.allclose(sum(self.T[i,:]), 1):
                 return False    
         return True
-
+    @property
+    def isreversible(self):
+        """
+        checks the reversed balance condition p_i T_ij == p_j T_ij
+        """
+        P=diag(self.stationaryDistribution)
+        return np.allclose(np.dot(P,T),np.dot(T.T,P))  #T.T is T transposed, I know...
+    
 ## TODO: order the eigenvalues in decreasing absolute value
-
-    @property
-    def eigenvalues(self):
-        if (self.active==True):
-            if (self._eigenvalues==None):
-                self._eigenvalues = np.linalg.eig(self.T)[0]
-            return self._eigenvalues
-    @property
-    def eigenvectors(self):
-        if (self.active==True):
-            if (self._eigenvectors==None):
-                self._eigenvectors = np.linalg.eig(self.T)[1]
-            return self._eigenvectors
-        
