@@ -174,7 +174,7 @@ class Estimation:
                     for j in range(self.number_of_clusters):
                         if self.dtraj[k+1]==j:
                             C[i,j]=C[i,j]+1
-        return M
+        return C
     
     
 
