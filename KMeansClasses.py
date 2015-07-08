@@ -108,10 +108,10 @@ class Clustering:
         #iterations
         for iterations in range(0,self.maxit):   
             
-            for clusters in self.clusters:
-                print (clusters.center, len(clusters.points))
-                clusters.UpdateMean()
-            print "#"  
+            #for clusters in self.clusters:
+            #    print (clusters.center, len(clusters.points))
+            #    clusters.UpdateMean()
+            #print "#"  
             
             for cluster in self.clusters:
                 for point in cluster.points:
@@ -134,7 +134,7 @@ class Clustering:
                 centervectornew.append(cluster.center)
                 centervectorold.append(cluster.oldcenter)
             norm = LA.norm(np.array(centervectornew)-np.array(centervectorold))
-            print norm    
+            #print norm    
             if (norm<self.tolerance):
                 break
                 
