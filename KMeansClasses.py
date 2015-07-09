@@ -1,7 +1,5 @@
-
 # coding: utf-8
 
-# In[351]:
 
 import numpy as np
 import random as rd
@@ -26,8 +24,6 @@ class Point:
             return (-1)
         
 
-
-# In[352]:
 
 class Cluster:
     def __init__(self,clusterID):
@@ -116,9 +112,9 @@ class Clustering:
         #iterations
         for iterations in range(0,self.maxit):   
             
-            #for clusters in self.clusters:
+            for clusters in self.clusters:
             #    print (clusters.center, len(clusters.points))
-            #    clusters.UpdateMean()
+                clusters.UpdateMean()
             #print "#"  
             
             for cluster in self.clusters:
@@ -142,7 +138,8 @@ class Clustering:
                 centervectornew.append(cluster.center)
                 centervectorold.append(cluster.oldcenter)
             norm = LA.norm(np.array(centervectornew)-np.array(centervectorold))
-            #print norm    
+            print norm
+            print iteration
             if (norm<self.tolerance):
                 break
                 
@@ -167,6 +164,10 @@ class Estimation:
         self.count_matrix = self.ComputeCountMatrix()
         self.transition_matrix = None
         
+    @property
+    def isreversible(self):
+        return ( len(kosaraju(self.count_matrix)) == 1 )
+        
     def ComputeCountMatrix(self):
         """
         computes the count matrix from the discrete trajectory
@@ -185,7 +186,33 @@ class Estimation:
         return C
     
     
-
+# depth_first_search
+def depth_first_search(graph, node, node_list):
+    node_list.append(node)
+    for i in range(graph.shape[0]):
+        if (graph[node,i]>0) and (i not in node_list):
+            depth_first_search(graph,i,node_list)
+    node_list.remove(node)
+    node_list.append(node)
+# kosaraju
+def kosaraju(graph):
+    V=[]
+    com_classes=[]
+    gra=np.array(graph)
+    dimention=gra.shape[0]
+    while len(V)<dimention:
+        for i in range(dimention):
+            if i not in V:
+                depth_first_search(gra,i,V)
+    while len(V)>0:
+        C=[]
+        depth_first_search(np.transpose(gra),V[-1],C)
+        com_classes.append(C)
+        for i in C:
+            V.remove(i)  #remove the elements in C from V
+            gra[i,:]=0 #remove the nodes in C from the graph
+            gra[:,i]=0
+    return com_classes   #return the comunication classes as a list of lists
 
 def isCountMatrix(C):
     """
