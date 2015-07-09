@@ -93,6 +93,8 @@ class Clustering:
                 sanlist.append(Point([data[i]],i))
             return sanlist
     def Kmeans(self):
+        for cluster in self.clusters:
+            cluster.points=[]
         for point in self.pointlist:
             pointco = point.coords[0]
             bestcluster=self.clusters
@@ -110,7 +112,6 @@ class Clustering:
             #    print (clusters.center, len(clusters.points))
                 clusters.UpdateMean()
             #print "#"  
-            self.pointlist=[]
             for cluster in self.clusters:
                 for point in cluster.points:
                     self.pointlist.append(point)
@@ -124,6 +125,7 @@ class Clustering:
                         closestcluster=(cluster,point.Distance(cluster.center))
                 tmppointer=closestcluster[0]
                 tmppointer.AddPoint(point)
+            self.pointlist=[]
             #check if norm is not changing anymonre
             centervectornew=[]
             centervectorold=[]
@@ -139,7 +141,7 @@ class Clustering:
         for cluster in self.clusters:
             for point in cluster.points:
                 self.pointlist.append(point)
-            cluster.points=[]
+            #cluster.points=[]
         returnlist=[]
         for i in sorted(self.pointlist,key=keyf):
             returnlist.append(i.coords[1])
