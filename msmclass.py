@@ -104,18 +104,20 @@ class MSMAnalysis:
             if not np.allclose(sum(self.T[i,:]), 1):
                 return False    
         return True
+    
+    
     @property
     def isreversible(self):
         """
         checks the reversed balance condition p_i T_ij == p_j T_ij
         """
         P=diag(self.stationaryDistribution)
-        return np.allclose(np.dot(P,T),np.dot(T.T,P))  #T.T is T transposed, I know...
+        return np.allclose(np.dot(P,self.T),np.dot(np.transpose(self.T,P))  #T.T is T transposed, I know...
     
     @property
     def timescales(self,num_of_val = 7):
         if self._timescales is None:
-            real_val = np.real(self.eigenvalues[:num_of_val])
+            real_val = np.real(self.eigenvalues[1:num_of_val]) # exclude the first eigenvalue 1
             
             self._timescales = -self.lagtime /np.log(np.absolute(real_val))
             for i in range(len(self._timescales)):
@@ -123,6 +125,7 @@ class MSMAnalysis:
                     self._timescales[i] = np.inf
                     
         return self._timescales
+    
 ## TODO: order the eigenvalues in decreasing absolute value
     def check_stat_dist(self):
         return np.linalg.norm(self.stationaryDistribution - np.dot(self.stationaryDistribution,self.T))
