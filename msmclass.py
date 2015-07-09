@@ -16,7 +16,7 @@ class LogFile:
         
 TEST_LOG=LogFile("testLog")
 class MSMAnalysis:
-    def __init__(self, T, log=TEST_LOG):
+    def __init__(self, T, log=TEST_LOG, lagtime = 1.):
         """ input:
         T : transition matrix, row stochastic np.array
         log : string of log file
@@ -55,6 +55,8 @@ class MSMAnalysis:
             
         self.active=True
         
+        self.lagtime = lagtime
+        
         # eigenvalues eigenvectors and stationary distribution
 
         unsorted_eigenvalues,unsorted_Reigenvectors= np.linalg.eig(self.T)
@@ -76,6 +78,8 @@ class MSMAnalysis:
         
         # we want to check first the transition matrix, thus the lazy definition
         self._stationaryDistribution = None
+        
+        self._timescales = None
         
         self.log=log
         self.log.LogSystemEvent("New instance of MSMAnalysis created",str(self),SYS_CREATE_MSMANALYSIS)
@@ -107,3 +111,18 @@ class MSMAnalysis:
         """
         P=diag(self.stationaryDistribution)
         return np.allclose(np.dot(P,T),np.dot(T.T,P))  #T.T is T transposed, I know...
+    
+    @property
+    def timescales(self,num_of_val = 7):
+        if self._timescales is None:
+            real_val = np.real(self.eigenvalues[:num_of_val])
+            
+            self._timescales = -self.lagtime /np.log(np.absolute(real_val))
+            for i in range(len(self._timescales)):
+                if self._timescales[i]<0:
+                    self._timescales[i] = np.inf
+                    
+        return self._timescales
+## TODO: order the eigenvalues in decreasing absolute value
+    def check_stat_dist(self):
+        return np.linalg.norm(self.stationaryDistribution - np.dot(self.stationaryDistribution,self.T))
