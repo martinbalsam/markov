@@ -104,7 +104,7 @@ class Clustering:
             tmppointer.AddPoint(point)
         self.pointlist=[]
         #iterations
-        for iterations in range(0,self.maxit):   
+        for iteration in range(0,self.maxit):   
             
             for clusters in self.clusters:
             #    print (clusters.center, len(clusters.points))
