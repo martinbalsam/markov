@@ -1,6 +1,6 @@
 # coding: utf-8
 
-
+import time
 import numpy as np
 import random as rd
 from numpy import linalg as LA
@@ -97,7 +97,7 @@ class Clustering:
             cluster.points=[]
         for point in self.pointlist:
             pointco = point.coords[0]
-            bestcluster=self.clusters
+            #bestcluster=self.clusters
             closestcluster = (self.clusters[0],point.Distance(self.clusters[0].center))
             for cluster in self.clusters:
                 if (point.Distance(cluster.center)<closestcluster[1]):
@@ -106,27 +106,113 @@ class Clustering:
             tmppointer.AddPoint(point)
         self.pointlist=[]
         #iterations
-        for iteration in range(0,self.maxit):   
+        if (self.system_dimension==1):
+            self.Kmeans1D()
+        else:
+            for iteration in range(0,self.maxit):   
             
+                for clusters in self.clusters:
+                #    print (clusters.center, len(clusters.points))
+                    clusters.UpdateMean()
+                #print "#"  
+                for cluster in self.clusters:
+                    for point in cluster.points:
+                        self.pointlist.append(point)
+                    cluster.points=[]
+                for point in self.pointlist:
+                    pointco = point.coords[0]
+                    bestcluster=self.clusters
+                    closestcluster = (self.clusters[0],point.Distance(self.clusters[0].center))
+                    for cluster in self.clusters:
+                        if (point.Distance(cluster.center)<closestcluster[1]):
+                            closestcluster=(cluster,point.Distance(cluster.center))
+                    tmppointer=closestcluster[0]
+                    tmppointer.AddPoint(point)
+                self.pointlist=[]
+                #check if norm is not changing anymonre
+                centervectornew=[]
+                centervectorold=[]
+                for cluster in self.clusters:
+                    centervectornew.append(cluster.center)
+                    centervectorold.append(cluster.oldcenter)
+                norm = LA.norm(np.array(centervectornew)-np.array(centervectorold))
+                print norm
+                print iteration
+                if (norm<self.tolerance):
+                    break
+                
+            for cluster in self.clusters:
+                for point in cluster.points:
+                    self.pointlist.append(point)
+                #cluster.points=[]
+            returnlist=[]
+            for i in sorted(self.pointlist,key=keyf):
+                returnlist.append(i.coords[1])
+            self.trajectory = returnlist
+    def Kmeans1D(self):
+        print "entering accelerated stage"
+        clusterlen=len(self.clusters)-1
+        for iteration in range(0,self.maxit):
+            tic=time.clock()
             for clusters in self.clusters:
-            #    print (clusters.center, len(clusters.points))
+                #    print (clusters.center, len(clusters.points))
                 clusters.UpdateMean()
-            #print "#"  
+                #print "#"  
             for cluster in self.clusters:
                 for point in cluster.points:
                     self.pointlist.append(point)
                 cluster.points=[]
+
             for point in self.pointlist:
                 pointco = point.coords[0]
-                bestcluster=self.clusters
-                closestcluster = (self.clusters[0],point.Distance(self.clusters[0].center))
-                for cluster in self.clusters:
-                    if (point.Distance(cluster.center)<closestcluster[1]):
-                        closestcluster=(cluster,point.Distance(cluster.center))
-                tmppointer=closestcluster[0]
-                tmppointer.AddPoint(point)
+                #bestcluster=self.clusters
+                closestcluster = (point.coords[1],point.Distance(self.clusters[point.coords[1]].center))
+                stat=0
+                if (point.coords[1]==clusterlen):
+                    stat=-1
+                elif (point.coords[1]==0):
+                    stat=1
+                elif (point.coords[0]>self.clusters[point.coords[1]+1].center):
+                    stat=1
+                elif (point.coords[0]<self.clusters[point.coords[1]-1].center):
+                    stat=-1
+                if (stat==0):
+                    for runvar in range(-1,2,1):
+                        if (point.Distance(self.clusters[point.coords[1]+runvar].center)<closestcluster[1]):
+                            closestcluster=(point.coords[1]+runvar,point.Distance(self.clusters[point.coords[1]+runvar].center))
+                elif (stat==1):
+                    center=point.coords[1]
+                    done=False
+                    while (done==False):
+                        center=center+1
+                        if (center==clusterlen):
+                            center=center-1
+                            done=True
+                        if (point.coords[0]<self.clusters[center+1].center):
+                            done=True
+                    for runvar in range(-1,2,1):
+                        if (point.Distance(self.clusters[center+runvar].center)<closestcluster[1]):
+                            closestcluster=(center+runvar,point.Distance(self.clusters[center+runvar].center))
+
+
+                elif (stat==-1):
+                    center=point.coords[1]
+                    done=False
+                    while (done==False):
+                        center=center-1
+                        if (center==0):
+                            center=center+1
+                            done=True
+                        if (point.coords[0]>self.clusters[center-1].center):
+                            done=True
+                    for runvar in range(-1,2,1):
+                        if (point.Distance(self.clusters[center+runvar].center)<closestcluster[1]):
+                            closestcluster=(center+runvar,point.Distance(self.clusters[center+runvar].center))                    
+                    #biggerstuff
+                    
+                self.clusters[closestcluster[0]].AddPoint(point)
             self.pointlist=[]
-            #check if norm is not changing anymonre
+            #check if norm is not changing anymore
             centervectornew=[]
             centervectorold=[]
             for cluster in self.clusters:
@@ -135,6 +221,8 @@ class Clustering:
             norm = LA.norm(np.array(centervectornew)-np.array(centervectorold))
             print norm
             print iteration
+            toc=time.clock()
+            print (toc-tic)
             if (norm<self.tolerance):
                 break
                 
@@ -146,7 +234,8 @@ class Clustering:
         for i in sorted(self.pointlist,key=keyf):
             returnlist.append(i.coords[1])
         self.trajectory = returnlist
-    
+
+            
     def GetEstimator(self):
         return Estimation(self.trajectory,self.k)
         
