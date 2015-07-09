@@ -1,12 +1,10 @@
-
 # coding: utf-8
 
-# In[351]:
+
 import numpy as np
 import random as rd
 from numpy import linalg as LA
-from log import *
-#get_ipython().magic(u'pylab inline')
+get_ipython().magic(u'pylab inline')
 def keyf(point):
     return point.pointnum
 def key2(tup):
@@ -26,8 +24,6 @@ class Point:
             return (-1)
         
 
-
-# In[352]:
 
 class Cluster:
     def __init__(self,clusterID):
@@ -49,14 +45,8 @@ class Cluster:
         self.center=self.center/len(self.points)
         
         
-    #def CalcFitness(self):
-        #sumtmp=0.0
-        #for i in self.points:
-           #sumtmp = sumtmp + i.Distance(self.Center)
-    
 
 
-# In[372]:
 
 class Clustering:
     def __init__(self,path, clusternumber, maxit=10, tolerance=0.01):
@@ -65,6 +55,7 @@ class Clustering:
         self.tolerance=tolerance
         self.maxit=maxit
         self.clusters=[]
+        self._cluster_centers = None
         self.trajectory = []
         self.system_dimension = len(self.pointlist[0].coords[0] )          
         rndsample=rd.sample(xrange(0,len(self.pointlist)),clusternumber)
@@ -81,6 +72,13 @@ class Clustering:
             self.clusters.append(Cluster(i))
             self.clusters[i].AssignCenter(self.pointlist[rndsample[i]].coords[0])
 
+    @property
+    def clustercenters(self):
+        centers = []
+        for cluster in self.clusters:
+            centers.append(cluster.center)
+        return cluster
+    
     def SanitizeInput(self,data):
         sanlist=[]
         if (len(data)==0):
@@ -108,9 +106,9 @@ class Clustering:
         #iterations
         for iterations in range(0,self.maxit):   
             
-            #for clusters in self.clusters:
+            for clusters in self.clusters:
             #    print (clusters.center, len(clusters.points))
-            #    clusters.UpdateMean()
+                clusters.UpdateMean()
             #print "#"  
             
             for cluster in self.clusters:
@@ -134,7 +132,8 @@ class Clustering:
                 centervectornew.append(cluster.center)
                 centervectorold.append(cluster.oldcenter)
             norm = LA.norm(np.array(centervectornew)-np.array(centervectorold))
-            #print norm    
+            print norm
+            print iteration
             if (norm<self.tolerance):
                 break
                 
@@ -159,6 +158,10 @@ class Estimation:
         self.count_matrix = self.ComputeCountMatrix()
         self.transition_matrix = None
         
+    @property
+    def isreversible(self):
+        return ( len(kosaraju(self.count_matrix)) == 1 )
+        
     def ComputeCountMatrix(self):
         """
         computes the count matrix from the discrete trajectory
@@ -177,7 +180,33 @@ class Estimation:
         return C
     
     
-
+# depth_first_search
+def depth_first_search(graph, node, node_list):
+    node_list.append(node)
+    for i in range(graph.shape[0]):
+        if (graph[node,i]>0) and (i not in node_list):
+            depth_first_search(graph,i,node_list)
+    node_list.remove(node)
+    node_list.append(node)
+# kosaraju
+def kosaraju(graph):
+    V=[]
+    com_classes=[]
+    gra=np.array(graph)
+    dimention=gra.shape[0]
+    while len(V)<dimention:
+        for i in range(dimention):
+            if i not in V:
+                depth_first_search(gra,i,V)
+    while len(V)>0:
+        C=[]
+        depth_first_search(np.transpose(gra),V[-1],C)
+        com_classes.append(C)
+        for i in C:
+            V.remove(i)  #remove the elements in C from V
+            gra[i,:]=0 #remove the nodes in C from the graph
+            gra[:,i]=0
+    return com_classes   #return the comunication classes as a list of lists
 
 def isCountMatrix(C):
     """
@@ -241,3 +270,42 @@ def estimate_reversible(C,maxiter=10000000,tolerance = 1e-10):
     T = X_new / [sum(X_new[i,:]) for i in range(dim)]
     print "number of iterations: ", iteration
     return T 
+
+
+# depth_first_search
+def depth_first_search(graph, node, node_list):
+    node_list.append(node)
+    for i in range(graph.shape[0]):
+        if (graph[node,i]>0) and (i not in node_list):
+            depth_first_search(graph,i,node_list)
+    node_list.remove(node)
+    node_list.append(node)
+# kosaraju
+def kosaraju(graph):
+    V=[]
+    com_classes=[]
+    gra=np.array(graph)
+    dimention=gra.shape[0]
+    while len(V)<dimention:
+        for i in range(dimention):
+            if i not in V:
+                depth_first_search(gra,i,V)
+    while len(V)>0:
+        C=[]
+        depth_first_search(np.transpose(gra),V[-1],C)
+        com_classes.append(C)
+        for i in C:
+            V.remove(i)  #remove the elements in C from V
+            gra[i,:]=0 #remove the nodes in C from the graph
+            gra[:,i]=0
+    return com_classes   #return the comunication classes as a list of lists
+
+
+def get_size_largest_element(array):
+    sizes=[]
+    for i in array:
+        sizes.append(len(i))
+    return max(sizes)
+
+def isConnected(count_matrix):
+    return len(kosaraju(count_matrix)) == 1
