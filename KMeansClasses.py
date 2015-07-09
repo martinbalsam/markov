@@ -65,6 +65,7 @@ class Clustering:
         self.tolerance=tolerance
         self.maxit=maxit
         self.clusters=[]
+        self._cluster_centers = None
         self.trajectory = []
         self.system_dimension = len(self.pointlist[0].coords[0] )          
         rndsample=rd.sample(xrange(0,len(self.pointlist)),clusternumber)
@@ -81,6 +82,14 @@ class Clustering:
             self.clusters.append(Cluster(i))
             self.clusters[i].AssignCenter(self.pointlist[rndsample[i]].coords[0])
 
+    @property
+    def clustercenters(self):
+        centers = []
+        for cluster in self.clusters:
+            centers.append(cluster.center)
+        return cluster
+    
+    
     def SanitizeInput(self,data):
         sanlist=[]
         if (len(data)==0):
