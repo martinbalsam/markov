@@ -54,16 +54,29 @@ class MSMAnalysis:
             self.active=False
             
         self.active=True
-        self._stationaryDistribution=None
-        self._Reigenvectors=None
-        self._Leigenvectors=None
         
+        # eigenvalues eigenvectors and stationary distribution
+
         unsorted_eigenvalues,unsorted_Reigenvectors= LA.eig(self.T)
-        zipper = zip(unsorted_eigenvalues,unsorted_Reigenvectors)
-        self._unsorted_eigenvalues = unsorted_eigenvalues
-        self._unsorted_Reigenvectors = unsorted_Reigenvectors
-        self.eigenvalues=sorted(unsorted_eigenvalues, key = abs, reverse=True)
-        self.Reigenvectors=None
+        _, unsorted_Leigenvectors = LA.eig(np.transpose(self.T))
+        elf._unsorted_eigenvalues = unsorted_eigenvalues
+        self._unsorted_Reigenvectors = np.transpose(unsorted_Reigenvectors)
+        self._unorted_Leigenvectors = np.transpose(unsorted_Leigenvectors)
+        #zip eigenvalues and eigenvectors
+        Rzipper = zip(unsorted_eigenvalues,np.transpose(unsorted_Reigenvectors))
+        Lzipper = zip(unsorted_eigenvalues,np.transpose(unsorted_Leigenvectors))
+        
+        #sort zippers
+        sorted_Rzipper = sorted(Rzipper, reverse = True, key = lambda x: np.abs(x[0]))
+        sorted_Lzipper = sorted(Lzipper, reverse = True, key = lambda x: np.abs(x[0]))
+        
+        #unzip
+        self.eigenvalues, self.Reigenvectors = zip(*sorted_Rzipper)
+        _trash, self.Leigenvectors = zip(*sorted_Lzipper)
+        
+        # we want to check first the transition matrix, thus the lazy definition
+        self._stationaryDistribution = None
+        
         self.log=log
         self.log.LogSystemEvent("New instance of MSMAnalysis created",str(self),SYS_CREATE_MSMANALYSIS)
         self.log.LogSystemEvent("Trying to assign transition matrix to object, variable type " + str(type(T)), str(self),SYS_ASSIGN_TRANSITION)
@@ -75,12 +88,8 @@ class MSMAnalysis:
     def stationaryDistribution(self):
         if (self.active==True):
             if self._stationaryDistribution is None:
-                T2= np.matrix.transpose(self.T)
-                w,v=np.linalg.eig(T2)
-                v2=np.matrix.transpose(v)
-                for i in range(0,len(w)):
-                    if (round(w[i],10)==1):
-                        self._stationaryDistribution = v2[i]
+                if np.allclose(self.eigenvalues[0],1):
+                    self._stationaryDistribution = self.Leigenvectors[0]
             return self._stationaryDistribution
         
     @property
