@@ -276,3 +276,42 @@ def estimate_reversible(C,maxiter=10000000,tolerance = 1e-10):
     T = X_new / [sum(X_new[i,:]) for i in range(dim)]
     print "number of iterations: ", iteration
     return T 
+
+
+# depth_first_search
+def depth_first_search(graph, node, node_list):
+    node_list.append(node)
+    for i in range(graph.shape[0]):
+        if (graph[node,i]>0) and (i not in node_list):
+            depth_first_search(graph,i,node_list)
+    node_list.remove(node)
+    node_list.append(node)
+# kosaraju
+def kosaraju(graph):
+    V=[]
+    com_classes=[]
+    gra=np.array(graph)
+    dimention=gra.shape[0]
+    while len(V)<dimention:
+        for i in range(dimention):
+            if i not in V:
+                depth_first_search(gra,i,V)
+    while len(V)>0:
+        C=[]
+        depth_first_search(np.transpose(gra),V[-1],C)
+        com_classes.append(C)
+        for i in C:
+            V.remove(i)  #remove the elements in C from V
+            gra[i,:]=0 #remove the nodes in C from the graph
+            gra[:,i]=0
+    return com_classes   #return the comunication classes as a list of lists
+
+
+def get_size_largest_element(array):
+    sizes=[]
+    for i in array:
+        sizes.append(len(i))
+    return max(sizes)
+
+def isConnected(count_matrix):
+    return len(kosaraju(count_matrix) == 1
