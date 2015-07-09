@@ -106,12 +106,55 @@ class Clustering:
             tmppointer.AddPoint(point)
         self.pointlist=[]
         #iterations
-        for iteration in range(0,self.maxit):   
+        if (self.system_dimension==1):
+            self.Kmeans1D()
+        else:
+            for iteration in range(0,self.maxit):   
             
+                for clusters in self.clusters:
+                #    print (clusters.center, len(clusters.points))
+                    clusters.UpdateMean()
+                #print "#"  
+                for cluster in self.clusters:
+                    for point in cluster.points:
+                        self.pointlist.append(point)
+                    cluster.points=[]
+                for point in self.pointlist:
+                    pointco = point.coords[0]
+                    bestcluster=self.clusters
+                    closestcluster = (self.clusters[0],point.Distance(self.clusters[0].center))
+                    for cluster in self.clusters:
+                        if (point.Distance(cluster.center)<closestcluster[1]):
+                            closestcluster=(cluster,point.Distance(cluster.center))
+                    tmppointer=closestcluster[0]
+                    tmppointer.AddPoint(point)
+                self.pointlist=[]
+                #check if norm is not changing anymonre
+                centervectornew=[]
+                centervectorold=[]
+                for cluster in self.clusters:
+                    centervectornew.append(cluster.center)
+                    centervectorold.append(cluster.oldcenter)
+                norm = LA.norm(np.array(centervectornew)-np.array(centervectorold))
+                print norm
+                print iteration
+                if (norm<self.tolerance):
+                    break
+                
+            for cluster in self.clusters:
+                for point in cluster.points:
+                    self.pointlist.append(point)
+                #cluster.points=[]
+            returnlist=[]
+            for i in sorted(self.pointlist,key=keyf):
+                returnlist.append(i.coords[1])
+            self.trajectory = returnlist
+    def Kmeans1D(self):
+        for iteration in range(0,self.maxit):   
             for clusters in self.clusters:
-            #    print (clusters.center, len(clusters.points))
+                #    print (clusters.center, len(clusters.points))
                 clusters.UpdateMean()
-            #print "#"  
+                #print "#"  
             for cluster in self.clusters:
                 for point in cluster.points:
                     self.pointlist.append(point)
@@ -146,7 +189,8 @@ class Clustering:
         for i in sorted(self.pointlist,key=keyf):
             returnlist.append(i.coords[1])
         self.trajectory = returnlist
-    
+
+            
     def GetEstimator(self):
         return Estimation(self.trajectory,self.k)
         
