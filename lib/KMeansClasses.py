@@ -110,7 +110,7 @@ class Clustering:
             #    print (clusters.center, len(clusters.points))
                 clusters.UpdateMean()
             #print "#"  
-            
+            self.pointlist=[]
             for cluster in self.clusters:
                 for point in cluster.points:
                     self.pointlist.append(point)
@@ -124,7 +124,6 @@ class Clustering:
                         closestcluster=(cluster,point.Distance(cluster.center))
                 tmppointer=closestcluster[0]
                 tmppointer.AddPoint(point)
-            self.pointlist=[]
             #check if norm is not changing anymonre
             centervectornew=[]
             centervectorold=[]
