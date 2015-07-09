@@ -4,7 +4,7 @@
 import numpy as np
 import random as rd
 from numpy import linalg as LA
-get_ipython().magic(u'pylab inline')
+#get_ipython().magic(u'pylab inline')
 def keyf(point):
     return point.pointnum
 def key2(tup):
