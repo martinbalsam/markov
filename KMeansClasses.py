@@ -89,7 +89,6 @@ class Clustering:
             centers.append(cluster.center)
         return cluster
     
-    
     def SanitizeInput(self,data):
         sanlist=[]
         if (len(data)==0):
@@ -117,10 +116,10 @@ class Clustering:
         #iterations
         for iterations in range(0,self.maxit):   
             
-            for clusters in self.clusters:
+            #for clusters in self.clusters:
             #    print (clusters.center, len(clusters.points))
-                clusters.UpdateMean()
-            print iterations 
+            #    clusters.UpdateMean()
+            #print "#"  
             
             for cluster in self.clusters:
                 for point in cluster.points:
