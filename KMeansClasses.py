@@ -314,4 +314,4 @@ def get_size_largest_element(array):
     return max(sizes)
 
 def isConnected(count_matrix):
-    return len(kosaraju(count_matrix) == 1
+    return len(kosaraju(count_matrix)) == 1
