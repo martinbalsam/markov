@@ -45,14 +45,8 @@ class Cluster:
         self.center=self.center/len(self.points)
         
         
-    #def CalcFitness(self):
-        #sumtmp=0.0
-        #for i in self.points:
-           #sumtmp = sumtmp + i.Distance(self.Center)
-    
 
 
-# In[372]:
 
 class Clustering:
     def __init__(self,path, clusternumber, maxit=10, tolerance=0.01):
