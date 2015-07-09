@@ -57,14 +57,14 @@ class MSMAnalysis:
         
         # eigenvalues eigenvectors and stationary distribution
 
-        unsorted_eigenvalues,unsorted_Reigenvectors= LA.eig(self.T)
-        _, unsorted_Leigenvectors = LA.eig(np.transpose(self.T))
-        elf._unsorted_eigenvalues = unsorted_eigenvalues
-        self._unsorted_Reigenvectors = np.transpose(unsorted_Reigenvectors)
-        self._unorted_Leigenvectors = np.transpose(unsorted_Leigenvectors)
+        unsorted_eigenvalues,unsorted_Reigenvectors= np.linalg.eig(self.T)
+        _, unsorted_Leigenvectors = np.linalg.eig(np.transpose(self.T))
+        self._unsorted_eigenvalues = unsorted_eigenvalues
+        unsorted_Reigenvectors = np.transpose(unsorted_Reigenvectors)
+        unsorted_Leigenvectors = np.transpose(unsorted_Leigenvectors)
         #zip eigenvalues and eigenvectors
-        Rzipper = zip(unsorted_eigenvalues,np.transpose(unsorted_Reigenvectors))
-        Lzipper = zip(unsorted_eigenvalues,np.transpose(unsorted_Leigenvectors))
+        Rzipper = zip(unsorted_eigenvalues,unsorted_Reigenvectors)
+        Lzipper = zip(unsorted_eigenvalues,unsorted_Leigenvectors)
         
         #sort zippers
         sorted_Rzipper = sorted(Rzipper, reverse = True, key = lambda x: np.abs(x[0]))
@@ -89,7 +89,9 @@ class MSMAnalysis:
         if (self.active==True):
             if self._stationaryDistribution is None:
                 if np.allclose(self.eigenvalues[0],1):
-                    self._stationaryDistribution = self.Leigenvectors[0]
+                    self._stationaryDistribution = np.abs(self.Leigenvectors[0]/np.sum(self.Leigenvectors[0]))
+                else:
+                    raise ValueError("the biggest eigenvalue is not 1, something is wrong")
             return self._stationaryDistribution
         
     @property
@@ -105,5 +107,3 @@ class MSMAnalysis:
         """
         P=diag(self.stationaryDistribution)
         return np.allclose(np.dot(P,T),np.dot(T.T,P))  #T.T is T transposed, I know...
-    
-## TODO: order the eigenvalues in decreasing absolute value
