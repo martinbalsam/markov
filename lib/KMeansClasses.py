@@ -93,6 +93,7 @@ class Clustering:
                 sanlist.append(Point([data[i]],i))
             return sanlist
     def Kmeans(self):
+        tic = time.clock()
         for cluster in self.clusters:
             cluster.points=[]
         for point in self.pointlist:
@@ -105,6 +106,8 @@ class Clustering:
             tmppointer=closestcluster[0]
             tmppointer.AddPoint(point)
         self.pointlist=[]
+        toc = time.clock()
+        print toc-tic
         #iterations
         if (self.system_dimension==1):
             self.Kmeans1D()
@@ -324,7 +327,7 @@ def estimate_irreversible(C):
             T[i,j]=C[i,j]/C[i].sum()
     return T
 
-def estimate_reversible(C,maxiter=10000000,tolerance = 1e-10):
+def estimate_reversible(C,maxiter=10000000,tolerance = 1e-13):
     """
     estimator of maximum likelihood of a reversible transition matrix
     
@@ -345,7 +348,7 @@ def estimate_reversible(C,maxiter=10000000,tolerance = 1e-10):
     #first iteration == True
     diff = 1.
     iteration = 1
-    while diff > 1e-08 and iteration < maxiter:
+    while diff > tolerance and iteration < maxiter:
         diff = 0.
         #copy the matrix, not just reassign the value
         X = np.copy(X_new)
@@ -357,7 +360,8 @@ def estimate_reversible(C,maxiter=10000000,tolerance = 1e-10):
                     diff = abs(X_new[i,j]-X[i,j]>diff)
         iteration += 1
     T = np.zeros_like(X_new)
-    T = X_new / [sum(X_new[i,:]) for i in range(dim)]
+    for i in range(dim):
+        T[i] = X_new[i]/sum(X_new[i])
     print "number of iterations: ", iteration
     return T 
 
