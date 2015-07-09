@@ -117,10 +117,10 @@ class Clustering:
         #iterations
         for iterations in range(0,self.maxit):   
             
-            #for clusters in self.clusters:
+            for clusters in self.clusters:
             #    print (clusters.center, len(clusters.points))
-            #    clusters.UpdateMean()
-            #print "#"  
+                clusters.UpdateMean()
+            print iterations 
             
             for cluster in self.clusters:
                 for point in cluster.points:

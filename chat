@@ -16,3 +16,5 @@ sorry guys,, it's giulio again i'm not sure when i can come today, I'm waiting f
 if you have any problem call me at 015777813588
 
 Decided on multi-thread solution instead of numba 
+
+Just figured out how to best do this import thing... Pretty dirty though. I will split the files in a second so we can import everythin in one line
