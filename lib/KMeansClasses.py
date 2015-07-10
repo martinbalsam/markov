@@ -247,14 +247,14 @@ class Clustering:
         
         
 class Estimation:
-    def __init__(self,dtraj,number_of_clusters):
+    def __init__(self,dtraj,number_of_clusters):        
         self.dtraj = dtraj
         self.number_of_clusters = number_of_clusters
         self.count_matrix = self.ComputeCountMatrix()
         self.transition_matrix = None
         
     @property
-    def isreversible(self):
+    def isconnected(self):
         return ( len(kosaraju(self.count_matrix)) == 1 )
         
     def ComputeCountMatrix(self):
