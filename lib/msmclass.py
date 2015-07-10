@@ -1,5 +1,6 @@
 from log import *
 import numpy as np
+from pyemma.msm.analysis import pcca as pyemmapcca
 MSM_DEF_LOG=LogFile("MSM_DEF_LOG")
 class MSMAnalysis:
     def __init__(self, T, log=MSM_DEF_LOG, lagtime = 1.):
@@ -95,8 +96,8 @@ class MSMAnalysis:
         """
         checks the reversed balance condition p_i T_ij == p_j T_ij
         """
-        P=diag(self.stationaryDistribution)
-        return np.allclose(np.dot(P,T),np.dot(T.T,P))  #T.T is T transposed, I know...
+        P=np.diag(self.stationaryDistribution)
+        return np.allclose(np.dot(P,self.T),np.dot(np.transpose(self.T),P))  #T.T is T transposed, I know...
     
     @property
     def timescales(self,num_of_val = 7):
@@ -109,6 +110,12 @@ class MSMAnalysis:
                     self._timescales[i] = np.inf
                     
         return self._timescales
+    
+    def pcca(self, m):
+        """
+        m is the number of metastable sets
+        """
+        return pyemmapcca(self.T,m)
 ## TODO: order the eigenvalues in decreasing absolute value
     def check_stat_dist(self):
         return np.linalg.norm(self.stationaryDistribution - np.dot(self.stationaryDistribution,self.T))
