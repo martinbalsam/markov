@@ -1,2 +1,2 @@
 # markov
-Markov chains project
+Markov Chains Model project
