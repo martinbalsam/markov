@@ -74,10 +74,12 @@ class Clustering:
 
     @property
     def clustercenters(self):
-        centers = []
-        for cluster in self.clusters:
-            centers.append(cluster.center)
-        return cluster
+        if self._cluster_centers is None:
+            centers = []
+            for cluster in self.clusters:
+                centers.append(cluster.center)
+            self._cluster_centers =  centers
+        return self._cluster_centers
     
     def SanitizeInput(self,data):
         sanlist=[]
